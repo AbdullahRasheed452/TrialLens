@@ -8,6 +8,8 @@ numpy==2.4.6
 pandas==3.1.0
 pyarrow==26.0.0
 jinja2==3.1.6
+peft==0.21.2
+accelerate==1.15.0
 
 # Testing
 pytest==9.1.1

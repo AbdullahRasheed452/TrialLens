@@ -211,14 +211,14 @@ class ScreeningEngine:
     def load(self):
         if self._target is None:
             model, self._tok = load_model(self.config.model, self.config.adapter)
-            self._target = QwenDecoder(model, "sdpa")
+            self._target = _warm(QwenDecoder(model, "sdpa"))
             self.eos = {self._tok.convert_tokens_to_ids("<|im_end|>"), self._tok.eos_token_id}
         return self
 
     def load_draft(self):
         if self._draft is None:
             model, _ = load_model(self.config.draft, self.config.draft_adapter)
-            self._draft = QwenDecoder(model, "sdpa")
+            self._draft = _warm(QwenDecoder(model, "sdpa"))
         return self._draft
 
     @property
@@ -313,6 +313,14 @@ class ScreeningEngine:
             "device": str(self.target.device),
             "dtype": str(self.target.dtype),
         }
+
+
+# Weights are memory-mapped and only paged in on first use, so one throwaway forward right
+# after loading keeps that one-off cost out of the first timed request.
+def _warm(dec: QwenDecoder) -> QwenDecoder:
+    cache = dec.new_cache(8)
+    dec.forward(torch.zeros(1, 4, dtype=torch.long, device=dec.device), cache, start=0)
+    return dec
 
 
 def _git_commit() -> str:

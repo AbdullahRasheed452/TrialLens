@@ -1,4 +1,4 @@
-"""Checks that the split follows the assignment protocol and nothing leaks between parts."""
+# Checks that the split follows the assignment protocol and nothing leaks between parts.
 
 import json
 from pathlib import Path

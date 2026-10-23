@@ -1,4 +1,4 @@
-"""Loading, splitting and preprocessing the TrialGPT criterion annotations."""
+# Loading, splitting and preprocessing the TrialGPT criterion annotations.
 
 from __future__ import annotations
 
@@ -52,8 +52,8 @@ def load_raw(path: str | Path | None = None) -> pd.DataFrame:
     return load_dataset(DATASET_ID, split="train").to_pandas()
 
 
+# Sort unique IDs, shuffle with default_rng(42), then take 37/8/8.
 def make_patient_split(patient_ids) -> dict[str, list[str]]:
-    """Sort unique IDs, shuffle with default_rng(42), then take 37/8/8."""
     ids = np.array(sorted(set(patient_ids)))
     if len(ids) != sum(SPLIT_SIZES.values()):
         raise ValueError(f"expected 53 patients, found {len(ids)}")
@@ -67,8 +67,8 @@ def make_patient_split(patient_ids) -> dict[str, list[str]]:
     }
 
 
+# Split a numbered note ("0. ...\n1. ...") into [{id, text}], keeping original IDs.
 def parse_note(note: str) -> list[dict]:
-    """Split a numbered note ("0. ...\\n1. ...") into [{id, text}], keeping original IDs."""
     sentences = []
     for line in note.split("\n"):
         line = line.strip()
@@ -102,8 +102,8 @@ def to_record(row: pd.Series) -> dict:
     }
 
 
+# Rows that cannot be posed as a criterion question (e.g. empty criterion text).
 def find_unusable(df: pd.DataFrame) -> list[dict]:
-    """Rows that cannot be posed as a criterion question (e.g. empty criterion text)."""
     text = df["criterion_text"].fillna("").str.strip()
     return [
         {"annotation_id": int(a), "patient_id": p, "reason": "empty criterion_text"}

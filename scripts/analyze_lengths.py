@@ -1,7 +1,6 @@
-"""Measure prompt and target token lengths to decide the max sequence length and check truncation.
-
-Usage: python scripts/analyze_lengths.py [--model Qwen/Qwen2.5-1.5B-Instruct] [--max-len 1024]
-"""
+# Measure prompt and target token lengths to decide the max sequence length and check truncation.
+#
+# Usage: python scripts/analyze_lengths.py [--model Qwen/Qwen2.5-1.5B-Instruct] [--max-len 1024]
 
 import argparse
 import json

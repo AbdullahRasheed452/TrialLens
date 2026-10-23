@@ -1,8 +1,7 @@
-"""Prompt construction and output schema.
-
-The patient note comes before the criterion so that every criterion for the same
-patient shares one prompt prefix, which lets the app reuse that prefix's KV cache.
-"""
+# Prompt construction and output schema.
+#
+# The patient note comes before the criterion so that every criterion for the same
+# patient shares one prompt prefix, which lets the app reuse that prefix's KV cache.
 
 from __future__ import annotations
 
@@ -45,6 +44,6 @@ def build_messages(sentences: list[dict], criterion_type: str, criterion_text: s
     ]
 
 
+# Training target. Evidence comes before the label so the label is conditioned on it.
 def target_json(record: dict) -> str:
-    """Training target. Evidence comes before the label so the label is conditioned on it."""
     return json.dumps({"evidence_ids": record["evidence_ids"], "label": record["label"]})

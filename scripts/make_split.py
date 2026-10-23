@@ -1,7 +1,6 @@
-"""Build the fixed 37/8/8 patient-grouped split and write the manifest.
-
-Usage: python scripts/make_split.py
-"""
+# Build the fixed 37/8/8 patient-grouped split and write the manifest.
+#
+# Usage: python scripts/make_split.py
 
 import json
 import sys

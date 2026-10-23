@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# Data is rebuilt from the Hugging Face dataset by scripts/make_split.py
+data/raw/
+data/processed/
+
+# Model weights and checkpoints live on the Hugging Face Hub
+checkpoints/
+outputs/
+*.safetensors
+*.bin
+*.gguf
+
+# Local assistant notes
+CLAUDE.md
+.claude/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.synctex.gz

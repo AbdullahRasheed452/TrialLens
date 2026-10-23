@@ -1,0 +1,87 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "max_len": 1024,
+  "splits": {
+    "train": {
+      "prompt_tokens": {
+        "min": 237,
+        "mean": 323.6,
+        "p95": 490,
+        "max": 607
+      },
+      "target_tokens": {
+        "min": 13,
+        "mean": 15.8,
+        "p95": 22,
+        "max": 39
+      },
+      "note_tokens": {
+        "min": 76,
+        "mean": 147.6,
+        "p95": 326,
+        "max": 372
+      },
+      "total_tokens": {
+        "min": 252,
+        "mean": 339.4,
+        "p95": 505,
+        "max": 634
+      },
+      "n_over_max_len": 0
+    },
+    "val": {
+      "prompt_tokens": {
+        "min": 277,
+        "mean": 336.8,
+        "p95": 386,
+        "max": 445
+      },
+      "target_tokens": {
+        "min": 13,
+        "mean": 15.3,
+        "p95": 19,
+        "max": 26
+      },
+      "note_tokens": {
+        "min": 113,
+        "mean": 160.3,
+        "p95": 204,
+        "max": 204
+      },
+      "total_tokens": {
+        "min": 292,
+        "mean": 352.1,
+        "p95": 401,
+        "max": 468
+      },
+      "n_over_max_len": 0
+    },
+    "test": {
+      "prompt_tokens": {
+        "min": 248,
+        "mean": 307.1,
+        "p95": 370,
+        "max": 511
+      },
+      "target_tokens": {
+        "min": 14,
+        "mean": 15.3,
+        "p95": 18,
+        "max": 29
+      },
+      "note_tokens": {
+        "min": 87,
+        "mean": 127.0,
+        "p95": 172,
+        "max": 172
+      },
+      "total_tokens": {
+        "min": 262,
+        "mean": 322.3,
+        "p95": 390,
+        "max": 528
+      },
+      "n_over_max_len": 0
+    }
+  }
+}

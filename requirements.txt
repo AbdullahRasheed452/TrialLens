@@ -1,0 +1,13 @@
+# Core (CPU install shown; on a CUDA machine install torch from the matching PyTorch index instead)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1
+transformers==5.20.2
+datasets==5.1.0
+huggingface-hub==2.3.0
+numpy==2.4.6
+pandas==3.1.0
+pyarrow==26.0.0
+jinja2==3.1.6
+
+# Testing
+pytest==9.1.1

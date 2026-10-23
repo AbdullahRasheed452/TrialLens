@@ -1,0 +1,354 @@
+{
+  "config": {
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "adapter": null,
+    "attention": "sdpa",
+    "device": "cpu",
+    "dtype": "torch.float32",
+    "warmup": 1,
+    "repeats": 2,
+    "timing": "median of repeats, device synchronised",
+    "memory": "process RSS sampling",
+    "gpu": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+    "torch": "2.14.1+cpu",
+    "timestamp": "2026-10-23T13:03:46+00:00"
+  },
+  "rows": [
+    {
+      "input_tokens": 64,
+      "output_tokens": 8,
+      "cached": {
+        "tokens": [
+          35957,
+          374,
+          537,
+          9733,
+          13,
+          4710,
+          17741,
+          25
+        ],
+        "prefill_s": 1.161611149989767,
+        "decode_s": 2.724268550024135,
+        "total_s": 3.885879700013902,
+        "decode_tok_per_s": 2.5836316113543774,
+        "overall_tok_per_s": 2.0596508598380794,
+        "total_s_runs": [
+          3.9678,
+          3.804
+        ],
+        "peak_mem_mb": 12.17578125,
+        "kv_cache_mb": 3.8828125,
+        "same_tokens_every_repeat": true
+      },
+      "uncached": {
+        "tokens": [
+          35957,
+          374,
+          537,
+          9733,
+          13,
+          4710,
+          17741,
+          25
+        ],
+        "prefill_s": 1.104186699987622,
+        "decode_s": 8.90241035001236,
+        "total_s": 10.006597049999982,
+        "decode_tok_per_s": 0.7885220816598801,
+        "overall_tok_per_s": 0.8015433754520793,
+        "total_s_runs": [
+          10.5152,
+          9.498
+        ],
+        "peak_mem_mb": 9.6171875,
+        "kv_cache_mb": 0.0,
+        "same_tokens_every_repeat": true
+      },
+      "tokens_check": {
+        "match": true,
+        "agreement": 1.0,
+        "first_mismatch": null,
+        "gap_at_mismatch": null,
+        "min_gap_overall": 0.001888275146484375
+      },
+      "speedup_total": 2.5751175596002582
+    },
+    {
+      "input_tokens": 64,
+      "output_tokens": 32,
+      "cached": {
+        "tokens": [
+          35957,
+          374,
+          537,
+          9733,
+          13,
+          4710,
+          17741,
+          25,
+          576,
+          8720,
+          1969,
+          387,
+          518,
+          3245,
+          220,
+          16,
+          23,
+          1635,
+          2310,
+          13,
+          4710,
+          9112,
+          25,
+          330,
+          785,
+          8720,
+          374,
+          220,
+          16,
+          22,
+          1635,
+          2310
+        ],
+        "prefill_s": 1.1433080499991775,
+        "decode_s": 11.52018594997935,
+        "total_s": 12.663493999978527,
+        "decode_tok_per_s": 2.6937026994831,
+        "overall_tok_per_s": 2.5296474855794298,
+        "total_s_runs": [
+          13.0771,
+          12.2499
+        ],
+        "peak_mem_mb": 13.16015625,
+        "kv_cache_mb": 5.1953125,
+        "same_tokens_every_repeat": true
+      },
+      "uncached": {
+        "tokens": [
+          35957,
+          374,
+          537,
+          9733,
+          13,
+          4710,
+          17741,
+          25,
+          576,
+          8720,
+          1969,
+          387,
+          518,
+          3245,
+          220,
+          16,
+          23,
+          1635,
+          2310,
+          13,
+          4710,
+          9112,
+          25,
+          330,
+          785,
+          8720,
+          374,
+          220,
+          16,
+          22,
+          1635,
+          2310
+        ],
+        "prefill_s": 1.1258011500176508,
+        "decode_s": 44.2455806999933,
+        "total_s": 45.37138185001095,
+        "decode_tok_per_s": 0.7012554930700567,
+        "overall_tok_per_s": 0.7059614108041252,
+        "total_s_runs": [
+          46.7702,
+          43.9726
+        ],
+        "peak_mem_mb": 15.28125,
+        "kv_cache_mb": 0.0,
+        "same_tokens_every_repeat": true
+      },
+      "tokens_check": {
+        "match": true,
+        "agreement": 1.0,
+        "first_mismatch": null,
+        "gap_at_mismatch": null,
+        "min_gap_overall": 0.001888275146484375
+      },
+      "speedup_total": 3.5828486079819584
+    },
+    {
+      "input_tokens": 256,
+      "output_tokens": 8,
+      "cached": {
+        "tokens": [
+          23,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369,
+          264
+        ],
+        "prefill_s": 4.011276950011961,
+        "decode_s": 2.711979350016918,
+        "total_s": 6.723256300028879,
+        "decode_tok_per_s": 2.5929705389692774,
+        "overall_tok_per_s": 1.199100646049723,
+        "total_s_runs": [
+          7.3122,
+          6.1343
+        ],
+        "peak_mem_mb": 49.37109375,
+        "kv_cache_mb": 14.3828125,
+        "same_tokens_every_repeat": true
+      },
+      "uncached": {
+        "tokens": [
+          23,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369,
+          264
+        ],
+        "prefill_s": 3.9904934999649413,
+        "decode_s": 29.89321405001101,
+        "total_s": 33.88370754997595,
+        "decode_tok_per_s": 0.23487063917584008,
+        "overall_tok_per_s": 0.23642708159840692,
+        "total_s_runs": [
+          32.6266,
+          35.1408
+        ],
+        "peak_mem_mb": 27.71875,
+        "kv_cache_mb": 0.0,
+        "same_tokens_every_repeat": true
+      },
+      "tokens_check": {
+        "match": true,
+        "agreement": 1.0,
+        "first_mismatch": null,
+        "gap_at_mismatch": null,
+        "min_gap_overall": 0.3056659698486328
+      },
+      "speedup_total": 5.039776268804509
+    },
+    {
+      "input_tokens": 256,
+      "output_tokens": 32,
+      "cached": {
+        "tokens": [
+          23,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369,
+          264,
+          46245,
+          30647,
+          1404,
+          2022,
+          624,
+          24,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369,
+          264,
+          8464,
+          1273,
+          624,
+          16,
+          15,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369
+        ],
+        "prefill_s": 4.3294284000003245,
+        "decode_s": 12.701326599984895,
+        "total_s": 17.03075499998522,
+        "decode_tok_per_s": 2.4464734570671975,
+        "overall_tok_per_s": 1.8818746650385854,
+        "total_s_runs": [
+          17.7017,
+          16.3598
+        ],
+        "peak_mem_mb": 46.20703125,
+        "kv_cache_mb": 15.6953125,
+        "same_tokens_every_repeat": true
+      },
+      "uncached": {
+        "tokens": [
+          23,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369,
+          264,
+          46245,
+          30647,
+          1404,
+          2022,
+          624,
+          24,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369,
+          264,
+          8464,
+          1273,
+          624,
+          16,
+          15,
+          13,
+          576,
+          8720,
+          374,
+          13537,
+          369
+        ],
+        "prefill_s": 4.446276649978245,
+        "decode_s": 133.61450145000708,
+        "total_s": 138.06077809998533,
+        "decode_tok_per_s": 0.23225289085667455,
+        "overall_tok_per_s": 0.23203304400349942,
+        "total_s_runs": [
+          142.6022,
+          133.5194
+        ],
+        "peak_mem_mb": 39.21484375,
+        "kv_cache_mb": 0.0,
+        "same_tokens_every_repeat": true
+      },
+      "tokens_check": {
+        "match": true,
+        "agreement": 1.0,
+        "first_mismatch": null,
+        "gap_at_mismatch": null,
+        "min_gap_overall": 0.011798858642578125
+      },
+      "speedup_total": 8.106556526713298
+    }
+  ]
+}

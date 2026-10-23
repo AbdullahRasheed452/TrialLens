@@ -1,0 +1,38 @@
+{
+  "rule": "highest overall macro-F1 on the validation split, fixed before training (scripts/train_lora.py)",
+  "selected": "os40",
+  "adapter": "checkpoints/os40/lora-best",
+  "candidates": {
+    "r16": {
+      "best_epoch": 4,
+      "trainable_params": 18464768,
+      "lora_r": 16,
+      "oversample_floor": 0,
+      "val_accuracy": 0.7476,
+      "val_macro_f1": 0.4437,
+      "val_evidence_micro_f1": 0.5146,
+      "val_evidence_macro_f1": 0.479
+    },
+    "os40": {
+      "best_epoch": 2,
+      "trainable_params": 18464768,
+      "lora_r": 16,
+      "oversample_floor": 40,
+      "val_accuracy": 0.7621,
+      "val_macro_f1": 0.564,
+      "val_evidence_micro_f1": 0.4588,
+      "val_evidence_macro_f1": 0.3648
+    },
+    "r8": {
+      "best_epoch": 3,
+      "trainable_params": 9232384,
+      "lora_r": 8,
+      "oversample_floor": 0,
+      "val_accuracy": 0.7524,
+      "val_macro_f1": 0.5527,
+      "val_evidence_micro_f1": 0.4976,
+      "val_evidence_macro_f1": 0.4446
+    }
+  },
+  "note": "Validation has only 2 'excluded' and 3 'not included' examples, so one prediction moves macro-F1 by about 0.1; differences below that are within noise."
+}

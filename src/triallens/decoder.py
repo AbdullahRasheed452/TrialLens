@@ -155,14 +155,20 @@ def _greedy(logits: torch.Tensor):
 
 # Greedy decoding that reuses and extends the KV cache: one prefill over the prompt, then
 # one single-token forward per generated token.
+#
+# prefix_len > 0 means `cache` already holds the keys/values of prompt_ids[:, :prefix_len]
+# (for example the system prompt and patient note shared by every criterion). The cache is
+# cropped back to that prefix and only the remaining prompt tokens are prefilled.
 def generate_cached(dec: QwenDecoder, prompt_ids: torch.Tensor, max_new_tokens: int,
-                    eos_ids=(), cache: KVCache | None = None) -> dict:
+                    eos_ids=(), cache: KVCache | None = None, prefix_len: int = 0) -> dict:
     P = prompt_ids.shape[1]
     cache = cache or dec.new_cache(P + max_new_tokens)
-    cache.crop(0)
+    if prefix_len > cache.length:
+        raise ValueError(f"cache holds {cache.length} tokens, prefix_len is {prefix_len}")
+    cache.crop(prefix_len)
     _sync(dec.device)
     t0 = time.perf_counter()
-    nxt, gap = _greedy(dec.forward(prompt_ids, cache, start=0, last_only=True))
+    nxt, gap = _greedy(dec.forward(prompt_ids[:, prefix_len:], cache, start=prefix_len, last_only=True))
     _sync(dec.device)
     t1 = time.perf_counter()
 

@@ -83,6 +83,18 @@ def test_crop_then_rewrite_gives_same_logits(tiny):
     torch.testing.assert_close(after, dec.forward(ids)[:, 15:], atol=1e-4, rtol=1e-4)
 
 
+def test_shared_prefix_reuse_matches_fresh_decode(tiny):
+    # The app prefills the patient note once and reuses it for every criterion.
+    dec = QwenDecoder(tiny, "sdpa")
+    prefix = prompt(25, seed=3)
+    cache = dec.new_cache(80)
+    dec.forward(prefix, cache, start=0)
+    for seed in (4, 5, 6):
+        full = torch.cat([prefix, prompt(10, seed=seed)], dim=1)
+        reused = generate_cached(dec, full, 12, cache=cache, prefix_len=25)
+        assert reused["tokens"] == generate_cached(dec, full, 12)["tokens"]
+
+
 def test_cache_bookkeeping(tiny):
     dec = QwenDecoder(tiny)
     cache = dec.new_cache(10)

@@ -24,7 +24,8 @@ def main() -> None:
         browser = p.chromium.launch(channel="msedge", headless=True)
         page = browser.new_page(viewport={"width": 1500, "height": 1000}, device_scale_factor=1.5,
                                 color_scheme="light")
-        page.goto(args.url, wait_until="networkidle")
+        page.goto(args.url, wait_until="load")
+        page.get_by_role("button", name="Run screening").wait_for(timeout=60000)
 
         # Screening tab: load a validation example and run it.
         page.get_by_label("Load a validation example (optional)").click()
@@ -45,14 +46,28 @@ def main() -> None:
         # Inference lab: a short live comparison of all decoding modes.
         page.get_by_role("tab", name="Inference lab").click()
         page.wait_for_timeout(800)
-        page.get_by_role("button", name="Run comparison").click()
-        page.get_by_text("Every mode is checked token by token").wait_for(timeout=15 * 60 * 1000)
+        # The first run loads and warms the draft model, so it is repeated and the second is kept,
+        # the same warm-up rule the benchmark scripts follow.
+        for _ in range(2):
+            page.get_by_role("button", name="Run comparison").click()
+            page.wait_for_timeout(2000)
+            page.get_by_text("Every mode is checked token by token").wait_for(timeout=15 * 60 * 1000)
+            page.get_by_role("button", name="Run comparison").wait_for(state="visible")
+            page.wait_for_function("() => !document.querySelector('.progress-text, .eta-bar')", timeout=15 * 60 * 1000)
         page.get_by_role("button", name="Check attention").click()
         page.get_by_text("Errors are against a float64 computation").wait_for(timeout=5 * 60 * 1000)
         page.wait_for_timeout(1500)
         page.screenshot(path=str(OUT / "app_inference_lab.png"), full_page=True)
         print("wrote app_inference_lab.png")
         browser.close()
+
+    # Paper crops (pixel boxes for the 1500x1000 viewport at 1.5x scale used above).
+    from PIL import Image
+
+    scr = Image.open(OUT / "app_screening.png")
+    scr.crop((int(200 * scr.height / 3230), 320, scr.width - int(200 * scr.height / 3230), 2120)).save(OUT / "app_screening_crop.png")
+    Image.open(OUT / "app_inference_lab.png").crop((200, 840, 2050, 1530)).save(OUT / "app_lab_crop.png")
+    print("wrote paper crops")
 
 
 if __name__ == "__main__":

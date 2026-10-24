@@ -236,13 +236,20 @@ The draft (Qwen2.5-0.5B-Instruct) and target share the same 151{,}936-entry voca
 \end{algorithm}
 
 \subsection{Application workflow}\label{sec:app}
-The Gradio application (started with \texttt{start.bat}, which builds the environment on first run) accepts a free-text or numbered note and criteria typed in the ClinicalTrials.gov layout or fetched by NCT number from the public ClinicalTrials.gov API. Free text is split into sentences that are numbered for citation. Inputs are validated (empty note, missing section headers, over-long notes, malformed trial IDs) with messages instead of crashes. The system prompt and note are prefilled once and their KV cache is reused for every criterion; we verified on all 808 train and validation prompts that tokenising prefix and suffix separately yields exactly the same tokens as tokenising the whole prompt, so this reuse cannot change predictions. Each criterion is shown as a card with its label, the cited sentences, an explanation, and a flag when a definite decision has no cited evidence. The preliminary patient-level outcome is an aggregation by fixed rules, not a labelled ground truth: any \emph{not included} or \emph{excluded} gives \emph{Likely ineligible}; otherwise any \emph{not enough information} or unreadable answer gives \emph{Needs review}; otherwise \emph{Potentially eligible}. Reports download as HTML or JSON with the model, adapter hash, decoding settings, git commit and a hash of the note. An inference lab runs the decoding modes and attention implementations live on the user's machine and checks token equality. Fig.~\ref{fig:app} shows the interface.
+The Gradio application (started with \texttt{start.bat}, which builds the environment on first run) accepts a free-text or numbered note and criteria typed in the ClinicalTrials.gov layout or fetched by NCT number from the public ClinicalTrials.gov API. Free text is split into sentences that are numbered for citation. Inputs are validated (empty note, missing section headers, over-long notes, malformed trial IDs) with messages instead of crashes. The system prompt and note are prefilled once and their KV cache is reused for every criterion; we verified on all 808 train and validation prompts that tokenising prefix and suffix separately yields exactly the same tokens as tokenising the whole prompt, so this reuse cannot change predictions. Each criterion is shown as a card with its label, the cited sentences, an explanation, and a flag when a definite decision has no cited evidence. The preliminary patient-level outcome is an aggregation by fixed rules, not a labelled ground truth: any \emph{not included} or \emph{excluded} gives \emph{Likely ineligible}; otherwise any \emph{not enough information} or unreadable answer gives \emph{Needs review}; otherwise \emph{Potentially eligible}. Reports download as HTML or JSON with the model, adapter hash, decoding settings, git commit and a hash of the note. An inference lab runs the decoding modes and attention implementations live on the user's machine and checks token equality. Fig.~\ref{fig:app} shows the screening view on a validation patient and Fig.~\ref{fig:lab} a live decoding comparison.
+
+\begin{figure*}[t]
+\centering
+\figfile{0.86\textwidth}{app_screening_crop.png}
+\caption{Screening view on a validation patient (laptop CPU). Left: note, criteria and settings. Right: the rule-based preliminary outcome, report downloads and criterion cards with the label, cited sentences, an explanation built from them, and the expert annotation shown only for validation examples. The model agrees with the experts on 3 of the 6 criteria here; the disagreements are \emph{not included} and \emph{not applicable} cases discussed in Section~\ref{sec:errors}.}
+\label{fig:app}
+\end{figure*}
 
 \begin{figure}[t]
 \centering
-\figfile{\columnwidth}{app_screening.png}
-\caption{Screening view: criterion cards with labels, cited sentences and explanations, and the rule-based preliminary outcome.}
-\label{fig:app}
+\figfile{\columnwidth}{app_lab_crop.png}
+\caption{Inference lab on the laptop CPU after a warm-up run: 16 tokens of a criterion answer with each decoding mode, all producing identical tokens.}
+\label{fig:lab}
 \end{figure}
 
 % ============================================================
@@ -325,7 +332,7 @@ Per-class F1 (Fig.~\ref{fig:beforeafter}) shows the gains are broad: \emph{not e
 \label{fig:confusion}
 \end{figure}
 
-\subsection{Error analysis}
+\subsection{Error analysis}\label{sec:errors}
 Of 206 test predictions, 57 have the wrong label and 22 more have the right label but miss all of the experts' evidence. Table~\ref{tab:errors} lists representative cases; the full set is produced by \texttt{scripts/error\_analysis.py}.
 
 \begin{table*}[t]

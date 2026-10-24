@@ -13,5 +13,8 @@ accelerate==1.15.0
 gradio==6.30.0
 psutil==7.2.2
 
+# Figures for the paper
+matplotlib==3.11.2
+
 # Testing
 pytest==9.1.1

@@ -4,6 +4,8 @@ Evidence-grounded clinical trial eligibility screening with a fine-tuned Qwen2.5
 
 > **Educational screening prototype.** TrialLens is a research project and does not make clinical enrollment decisions. Every result must be checked by a qualified person.
 
+**Paper:** [TrialLens_paper.pdf](paper/TrialLens_paper.pdf) (IEEE format, LaTeX source in [`paper/`](paper))
+
 TrialLens reads a patient note, a criterion type (inclusion or exclusion) and the criterion text, and returns one of the expert label categories together with the IDs of the patient sentences that support it. A browser app runs this over every criterion of a trial, highlights the evidence, gives a rule-based preliminary outcome and exports a report.
 
 ## Results on the held-out test patients
@@ -125,7 +127,7 @@ python scripts/make_figures.py        # paper/figures/*.pdf
 python scripts/error_analysis.py      # results/analysis/os40_test_error_cases.json
 ```
 
-The paper source is in [`paper/`](paper); upload the folder to Overleaf (or run `pdflatex main && bibtex main && pdflatex main && pdflatex main`) to build the PDF.
+The compiled paper is [`paper/TrialLens_paper.pdf`](paper/TrialLens_paper.pdf). To rebuild it, run `pdflatex main && bibtex main && pdflatex main && pdflatex main` inside `paper/` (MiKTeX or TeX Live), or upload the folder to Overleaf.
 
 ## Troubleshooting
 

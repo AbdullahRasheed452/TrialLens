@@ -340,7 +340,7 @@ Of 206 test predictions, 57 have the wrong label and 22 more have the right labe
 \caption{Representative test errors of the fine-tuned model. G = expert label and evidence, P = prediction.}
 \label{tab:errors}
 \small
-\begin{tabular}{p{0.3cm}p{2.6cm}p{4.6cm}p{3.1cm}p{5.6cm}}
+\begin{tabular}{p{0.3cm}p{2.6cm}p{4.5cm}p{3.1cm}p{5.4cm}}
 \toprule
 \# & Category & Criterion (abridged) & G $\to$ P & Analysis \\
 \midrule
@@ -460,8 +460,8 @@ Claude Code (Anthropic, Claude Opus model) was used as a programming and writing
 \section{Reproducibility}
 {\raggedright
 Code, split manifest, logs and results:\\ \href{https://github.com/AbdullahRasheed452/TrialLens}{\footnotesize\texttt{github.com/AbdullahRasheed452/TrialLens}}\\[2pt]
-Target adapter:\\ \href{https://huggingface.co/Abdullah452/triallens-qwen2.5-1.5b-lora}{\footnotesize\texttt{huggingface.co/Abdullah452/triallens-qwen2.5-1.5b-lora}}\\[2pt]
-Draft adapter:\\ \href{https://huggingface.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora}{\footnotesize\texttt{huggingface.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora}}\\[2pt]
+Target adapter:\\ \href{https://huggingface.co/Abdullah452/triallens-qwen2.5-1.5b-lora}{\footnotesize\texttt{hf.co/Abdullah452/triallens-qwen2.5-1.5b-lora}}\\[2pt]
+Draft adapter:\\ \href{https://huggingface.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora}{\footnotesize\texttt{hf.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora}}\\[2pt]
 Both adapters are fetched by \texttt{scripts/download\_adapter.py}. Every table and figure is regenerated from committed JSON files by \texttt{scripts/make\_figures.py} and \texttt{scripts/error\_analysis.py}.\par}
 
 \bibliographystyle{IEEEtran}

@@ -33,6 +33,3 @@ Thumbs.db
 *.bbl
 *.blg
 *.synctex.gz
-
-# Personal submission copies (paper PDF, demo video, study notes); not part of the repo
-submission/

@@ -66,7 +66,7 @@ def main() -> None:
 
     scr = Image.open(OUT / "app_screening.png")
     scr.crop((int(200 * scr.height / 3230), 320, scr.width - int(200 * scr.height / 3230), 2120)).save(OUT / "app_screening_crop.png")
-    Image.open(OUT / "app_inference_lab.png").crop((200, 840, 2050, 1530)).save(OUT / "app_lab_crop.png")
+    Image.open(OUT / "app_inference_lab.png").crop((200, 990, 2050, 1300)).save(OUT / "app_lab_crop.png")
     print("wrote paper crops")
 
 

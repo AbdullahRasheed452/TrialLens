@@ -38,7 +38,7 @@ clinical trial matching, large language models, LoRA, KV cache, FlashAttention, 
 
 % ============================================================
 \section{Introduction}
-Clinical trials specify who may enroll through free-text eligibility criteria. Screening a patient means reading the clinical note against each criterion, and most criteria are either not addressed by the note or need a small clinical inference (a heart rate of 132 satisfies ``at least 90/min''; a 48-year-old man cannot be pregnant). Large language models (LLMs) are a natural fit, and TrialGPT~\cite{jin2024trialgpt} showed that GPT-4 can produce criterion-level judgments with cited evidence that experts largely agree with. A proprietary model is, however, not an option when notes cannot leave the institution or when the system has to run on modest hardware.
+Clinical trials specify who may enroll through free-text eligibility criteria. Screening a patient means reading the clinical note against each criterion, and most criteria are either not addressed by the note or need a small clinical inference (a heart rate of 132 satisfies ``at least 90/min''; a 48-year-old man cannot be pregnant). Large language models (LLMs) built on the Transformer~\cite{vaswani2017attention} are a natural fit, and TrialGPT~\cite{jin2024trialgpt} showed that GPT-4 can produce criterion-level judgments with cited evidence that experts largely agree with. A proprietary model is, however, not an option when notes cannot leave the institution or when the system has to run on modest hardware.
 
 This work asks whether a small open-weight decoder, fine-tuned on the expert annotations released with TrialGPT, can make the same kind of criterion-level judgments with sentence-level evidence, and how its inference can be made efficient and verifiable. The problem has four parts:
 \begin{enumerate}
@@ -245,12 +245,12 @@ The Gradio application (started with \texttt{start.bat}, which builds the enviro
 \label{fig:app}
 \end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\figfile{\columnwidth}{app_lab_crop.png}
-\caption{Inference lab on the laptop CPU after a warm-up run: 16 tokens of a criterion answer with each decoding mode, all producing identical tokens.}
+\figfile{0.9\textwidth}{app_lab_crop.png}
+\caption{Inference lab on the laptop CPU after a warm-up run (294-token prompt, 16 generated tokens, fp32): live timings of each decoding mode, all producing tokens identical to KV-cached greedy decoding.}
 \label{fig:lab}
-\end{figure}
+\end{figure*}
 
 % ============================================================
 \section{Experimental Setup and Metrics}
@@ -358,7 +358,7 @@ Of 206 test predictions, 57 have the wrong label and 22 more have the right labe
 \end{tabular}
 \end{table*}
 
-Two measurable annotation conventions explain many of these errors. First, among the 381 train and validation exclusion criteria without gold evidence, experts wrote \emph{not excluded} 286 times (75\%), \emph{not enough information} 68 times and \emph{not applicable} 27 times. In other words, the reference labels themselves usually treat an unmentioned exclusion condition as absent. The model learned this majority, which yields 24 test errors where the experts chose \emph{not enough information} instead, and an inclusion/exclusion asymmetry: \emph{not enough information} recall is 0.974 for inclusion criteria but 0.107 for exclusion criteria. Because the assignment requires that absent evidence never be taken as proof, the application marks every definite decision that has no cited sentence as unsupported and routes the patient to \emph{Needs review} when any criterion is undecided. Second, pregnancy-type criteria for male patients are \emph{not applicable} in 17 of 18 cases, so error 7 reflects label noise rather than model failure. The remaining errors (3--6) are genuine reasoning gaps: the 1.5B model does not infer negatives from context or translate clinical descriptions (``tachycardic'') into numeric thresholds.
+Two measurable annotation conventions explain many of these errors. First, among the 381 train and validation exclusion criteria without gold evidence, experts wrote \emph{not excluded} 286 times (75\%), \emph{not enough information} 68 times and \emph{not applicable} 27 times. In other words, the reference labels themselves usually treat an unmentioned exclusion condition as absent. The model learned this majority, which yields 24 test errors where the experts chose \emph{not enough information} instead, and an inclusion/exclusion asymmetry: \emph{not enough information} recall is 0.974 for inclusion criteria but 0.107 for exclusion criteria. Because absent evidence should never be taken as proof of eligibility or ineligibility, the application marks every definite decision that has no cited sentence as unsupported and routes the patient to \emph{Needs review} when any criterion is undecided. Second, pregnancy-type criteria for male patients are \emph{not applicable} in 17 of 18 cases, so error 7 reflects label noise rather than model failure. The remaining errors (3--6) are genuine reasoning gaps: the 1.5B model does not infer negatives from context or translate clinical descriptions (``tachycardic'') into numeric thresholds.
 
 \subsection{KV-cached decoding}\label{sec:kvres}
 On the real 1.5B model our forward pass with the SDPA backend reproduces the library's logits exactly (maximum difference 0 on a 200-token input), and the reference and tiled backends stay within $4.4\times10^{-5}$ with identical arg-max at every position. Unit tests on a small random Qwen2 model check cached against uncached greedy tokens at three prompt/output lengths for all three attention backends, cached logits against full recomputation, cache cropping, and agreement with \texttt{generate}. On the laptop CPU in fp32, cached and uncached decoding produced identical tokens in all four configurations, with 2.6$\times$ to 8.1$\times$ end-to-end speedups.
@@ -458,7 +458,11 @@ A 1.5B-parameter open model, adapted with 18.5M LoRA parameters in about half an
 Claude Code (Anthropic, Claude Opus model) was used as a programming and writing assistant throughout the project: it drafted code, tests, the Kaggle notebooks, figure scripts and the first draft of this paper from the author's instructions and the experiment logs. The author decided the model, split procedure, experiments and design choices, ran every training, evaluation and benchmark job, reviewed and tested all code, and checked every reported number against the committed result files, which the figures and tables are generated from. Library code (PyTorch, Hugging Face Transformers, PEFT, Gradio) is used as documented; the decoder, cache, attention and speculative decoding are written for this project and verified by the tests described above.
 
 \section{Reproducibility}
-Code, split manifest, logs and results: \url{https://github.com/AbdullahRasheed452/TrialLens}. Adapters: \url{https://huggingface.co/Abdullah452/triallens-qwen2.5-1.5b-lora} (target) and \url{https://huggingface.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora} (draft), downloaded by \texttt{scripts/download\_adapter.py}. Every table and figure is regenerated from committed JSON files by \texttt{scripts/make\_figures.py} and \texttt{scripts/error\_analysis.py}.
+{\raggedright
+Code, split manifest, logs and results:\\ \url{https://github.com/AbdullahRasheed452/TrialLens}\\[2pt]
+Target adapter:\\ \url{https://huggingface.co/Abdullah452/triallens-qwen2.5-1.5b-lora}\\[2pt]
+Draft adapter:\\ \url{https://huggingface.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora}\\[2pt]
+Both adapters are fetched by \texttt{scripts/download\_adapter.py}. Every table and figure is regenerated from committed JSON files by \texttt{scripts/make\_figures.py} and \texttt{scripts/error\_analysis.py}.\par}
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}

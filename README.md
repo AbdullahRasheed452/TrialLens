@@ -6,6 +6,8 @@ Evidence-grounded clinical trial eligibility screening with a fine-tuned Qwen2.5
 
 **Paper:** [TrialLens_paper.pdf](paper/TrialLens_paper.pdf) (IEEE format, LaTeX source in [`paper/`](paper))
 
+**Demo video:** [youtu.be/StV4EAdW9mc](https://youtu.be/StV4EAdW9mc) (5.5 minutes, recorded on a laptop CPU)
+
 TrialLens reads a patient note, a criterion type (inclusion or exclusion) and the criterion text, and returns one of the expert label categories together with the IDs of the patient sentences that support it. A browser app runs this over every criterion of a trial, highlights the evidence, gives a rule-based preliminary outcome and exports a report.
 
 ## Results on the held-out test patients

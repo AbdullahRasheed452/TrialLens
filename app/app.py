@@ -13,6 +13,7 @@ import sys
 import tempfile
 import time
 import traceback
+from html import escape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,7 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gradio as gr  # noqa: E402
 import torch  # noqa: E402
 
-from render import CSS, disclaimer_html, note_html, report_html, results_html, summary_html  # noqa: E402
+from render import (CSS, header_html, note_html, notice_html, report_html, results_html,  # noqa: E402
+                    status_html, summary_html)
 from triallens.attention import causal_mask, reference_attention, sdpa_attention, tiled_attention  # noqa: E402
 from triallens.data import read_jsonl  # noqa: E402
 from triallens.decoder import generate_cached, generate_uncached  # noqa: E402
@@ -80,50 +82,55 @@ def fetch(nct_id):
         t = fetch_trial(nct_id)
     except InputError as e:
         gr.Warning(str(e))
-        return gr.update(), f"⚠️ {e}", None
+        return gr.update(), gr.update(value=status_html("error", "Could not load the trial", escape(str(e))), visible=True), None
     n = len(parse_criteria(t["criteria"]))
-    return t["criteria"], f"Loaded **{t['nct_id']}**: {t['title']} ({n} criteria).", {"nct_id": t["nct_id"], "title": t["title"]}
+    return (t["criteria"], gr.update(value=status_html("done", f"Loaded {t['nct_id']}", f"{escape(t['title'])} · {n} criteria"), visible=True),
+            {"nct_id": t["nct_id"], "title": t["title"]})
 
 
 # ---------------------------------------------------------------- screening
 
+IDLE = status_html("idle", "Ready", "Enter a patient note and criteria, or load a validation example, then run the screening.")
+
+
 def screen(note, criteria_text, mode_label, attention, k, example, trial):
     mode = next(m for m, lbl in DECODING_MODES.items() if lbl == mode_label)
-    empty = ("", "", "", gr.update(visible=False), gr.update(visible=False))
+    hidden = gr.update(visible=False)
     try:
         sentences = split_sentences(note)
         criteria = parse_criteria(criteria_text)
         info = ENGINE.check_note(sentences)
     except InputError as e:
         gr.Warning(str(e))
-        yield (f"⚠️ **Input problem:** {e}", *empty)
+        yield (status_html("error", "Input needs attention", escape(str(e))), hidden, results_html([]), "", hidden, hidden)
         return
 
     gold = example["gold"] if example and example.get("note") == note else {}
     if trial is None and example and example.get("note") == note:
         trial = example["trial"]
-    head = f"Screening {len(criteria)} criteria against {len(sentences)} sentences ({info['note_tokens']} tokens) with **{mode_label}**, attention `{attention}`."
+    scope = (f"{len(criteria)} criteria · {len(sentences)} sentences ({info['note_tokens']} tokens) · "
+             f"{escape(mode_label)} · attention {escape(attention)}")
     if info["warning"]:
-        head += f"\n\n⚠️ {info['warning']}"
+        scope += f"<br>{escape(info['warning'])}"
     results, start = [], time.perf_counter()
-    yield (head + "\n\nLoading models and preparing the patient prefix…", "", "", note_html(sentences, []),
-           gr.update(visible=False), gr.update(visible=False))
+    yield (status_html("running", "Preparing the patient prefix", scope), hidden, results_html([]), note_html(sentences, []),
+           hidden, hidden)
     try:
         for r in ENGINE.screen(sentences, criteria, mode=mode, attention=attention, k=int(k)):
             results.append(r)
-            status = f"{head}\n\nDone {len(results)} of {len(criteria)} · {time.perf_counter() - start:.1f}s elapsed"
-            yield (status, "", results_html(results, gold), note_html(sentences, results),
-                   gr.update(visible=False), gr.update(visible=False))
+            title = f"Screening criterion {min(len(results) + 1, len(criteria))} of {len(criteria)}"
+            yield (status_html("running", title, f"{scope}<br>{time.perf_counter() - start:.1f} s elapsed"),
+                   hidden, results_html(results, gold), note_html(sentences, results), hidden, hidden)
     except InputError as e:
         gr.Warning(str(e))
-        yield (f"⚠️ **Input problem:** {e}", "", results_html(results, gold), note_html(sentences, results),
-               gr.update(visible=False), gr.update(visible=False))
+        yield (status_html("error", "Input needs attention", escape(str(e))), hidden, results_html(results, gold),
+               note_html(sentences, results), hidden, hidden)
         return
     except Exception as e:  # keep the app alive and show what went wrong
         traceback.print_exc()
-        yield (f"❌ **Unexpected error:** {type(e).__name__}: {e}. The app is still running; try again.",
-               "", results_html(results, gold), note_html(sentences, results),
-               gr.update(visible=False), gr.update(visible=False))
+        yield (status_html("error", "Unexpected error",
+                           f"{escape(type(e).__name__)}: {escape(str(e))}. The app is still running; try again."),
+               hidden, results_html(results, gold), note_html(sentences, results), hidden, hidden)
         return
 
     report = build_report(note, sentences, criteria_text, results, ENGINE.provenance(mode, attention, int(k)), trial)
@@ -133,11 +140,13 @@ def screen(note, criteria_text, mode_label, attention, k, example, trial):
     html_path.write_text(report_html(report), encoding="utf-8")
     json_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     total = time.perf_counter() - start
-    status = f"{head}\n\n✅ Finished {len(results)} criteria in {total:.1f}s ({total / len(results):.1f}s per criterion)."
+    detail = f"{scope}<br>{total:.1f} s in total, {total / len(results):.1f} s per criterion"
     if gold:
         hits = sum(gold.get(r["criterion"], {}).get("label") == r["label"] for r in results)
-        status += f" Agreement with the expert labels on this validation example: {hits}/{len(results)}."
-    yield (status, summary_html(report["summary"], results), results_html(results, gold), note_html(sentences, results),
+        detail += f" · agrees with the expert labels on {hits} of {len(results)} (validation example)"
+    yield (status_html("done", f"Screened {len(results)} criteria", detail),
+           gr.update(value=summary_html(report["summary"], results), visible=True),
+           results_html(results, gold), note_html(sentences, results),
            gr.update(value=str(html_path), visible=True), gr.update(value=str(json_path), visible=True))
 
 
@@ -162,7 +171,7 @@ def compare_decoding(note, criteria_text, workload, max_new, modes, k, ignore_eo
             raise InputError("Pick at least one decoding mode.")
     except InputError as e:
         gr.Warning(str(e))
-        return f"⚠️ {e}", [], ""
+        return status_html("error", "Input needs attention", escape(str(e))), [], ""
 
     dec = ENGINE.target
     dec.set_attention("sdpa")
@@ -201,17 +210,20 @@ def compare_decoding(note, criteria_text, workload, max_new, modes, k, ignore_eo
         rows.append([
             name, round(r["prefill_s"] * 1e3, 1), round(r["decode_s"] * 1e3, 1), round(r["total_s"] * 1e3, 1),
             r["n_tokens"], round(r["n_tokens"] / r["total_s"], 2),
-            "✓ identical" if r["tokens"] == base["tokens"] else "✗ differs",
+            "Identical" if r["tokens"] == base["tokens"] else "Differs",
             f'{r["acceptance_rate"]:.0%} (k={k})' if r.get("acceptance_rate") is not None else "",
             round(r.get("kv_cache_bytes", 0) / 2**20, 2) if name != "Speculative" else "",
             round(r["peak"] / 2**20, 1),
         ])
-    msg = (f"Prompt: {ids.shape[1]} tokens · device `{dec.device}` · `{dec.dtype}` · greedy decoding. "
-           f"Every mode is checked token by token against the KV-cache greedy output. "
-           f"Peak memory is {PeakMemory(dec.device).method} during the call.")
+    same = all(row[6] == "Identical" for row in rows)
+    detail = (f"{ids.shape[1]}-token prompt · {dec.device} · {str(dec.dtype).replace('torch.', '')} · greedy. "
+              f"Every mode is checked token by token against the KV-cache output. "
+              f"Peak memory is {PeakMemory(dec.device).method} during the call.")
     if "KV cache + shared prefix" in modes and workload != "Criterion answer":
-        msg += " The shared-prefix mode only applies to the criterion workload and was skipped."
-    return msg, rows, ENGINE.tok.decode(base["tokens"], skip_special_tokens=True)
+        detail += " The shared-prefix mode only applies to the criterion workload and was skipped."
+    title = "All modes produced identical tokens" if same else "Token mismatch between modes"
+    return (status_html("done" if same else "warn", title, detail), rows,
+            ENGINE.tok.decode(base["tokens"], skip_special_tokens=True))
 
 
 def attention_check(seq_len, block, offset_case):
@@ -242,10 +254,11 @@ def attention_check(seq_len, block, offset_case):
         rows.append([name, f"{err.max().item():.2e}", f"{err.mean().item():.2e}", round(statistics.median(times) * 1e3, 2)])
     score_mb = H * tq * T * 4 / 2**20
     tile_mb = H * min(b, tq) * b * 4 / 2**20
-    note = (f"q: [1, {H}, {tq}, {D}], k/v: [1, {H}, {T}, {D}], causal with query offset {off}, fp32 on CPU, median of 3 runs. "
+    note = (f"q [1, {H}, {tq}, {D}] · k/v [1, {H}, {T}, {D}] · causal, query offset {off} · fp32 on CPU, median of 3 runs. "
             f"The reference keeps a {score_mb:.2f} MB score matrix; the tiled version holds at most {tile_mb:.3f} MB of scores "
             f"at a time. Errors are against a float64 computation.")
-    return note, rows
+    worst = max(float(r[1]) for r in rows)
+    return status_html("done", f"All implementations within {worst:.1e} of float64", note), rows
 
 
 def recorded_benchmarks():
@@ -310,8 +323,9 @@ validated against ground truth.
 
 def build_ui():
     with gr.Blocks(title="TrialLens") as ui:
-        gr.HTML(f'<h1 style="margin:6px 0 0">TrialLens</h1><p style="margin:0 0 4px;opacity:.75">'
-                f'Evidence-grounded clinical trial eligibility screening</p>{disclaimer_html(DISCLAIMER)}')
+        p = ENGINE.provenance("kv_prefix", "sdpa", 4)
+        gr.HTML(header_html(p["model"], p["adapter"], f'{p["device"]} · {p["dtype"].replace("torch.", "")}')
+                + notice_html(DISCLAIMER))
         example_state, trial_state = gr.State(None), gr.State(None)
 
         with gr.Tab("Screen a patient"):
@@ -324,7 +338,7 @@ def build_ui():
                     with gr.Row():
                         nct = gr.Textbox(label="ClinicalTrials.gov ID (optional)", placeholder="NCT01397994", scale=3)
                         fetch_btn = gr.Button("Fetch criteria", scale=1)
-                    trial_info = gr.Markdown()
+                    trial_info = gr.HTML(elem_classes=["tl-tight"], visible=False)
                     criteria = gr.Textbox(label="Eligibility criteria", lines=10,
                                           placeholder="Inclusion criteria:\n* ...\n\nExclusion criteria:\n* ...")
                     with gr.Accordion("Inference settings", open=False):
@@ -334,13 +348,13 @@ def build_ui():
                         k = gr.Slider(1, 8, value=4, step=1, label="Draft tokens per round (speculative only)")
                     run = gr.Button("Run screening", variant="primary")
                 with gr.Column(scale=6):
-                    status = gr.Markdown("Fill in a note and criteria, or load an example, then press **Run screening**.")
-                    summary = gr.HTML()
+                    status = gr.HTML(IDLE, elem_classes=["tl-tight"])
+                    summary = gr.HTML(elem_classes=["tl-tight"], visible=False)
                     with gr.Row():
                         dl_html = gr.DownloadButton("Download report (HTML)", visible=False)
                         dl_json = gr.DownloadButton("Download report (JSON)", visible=False)
                     with gr.Tab("Criteria"):
-                        results = gr.HTML()
+                        results = gr.HTML(results_html([]))
                     with gr.Tab("Patient note with evidence"):
                         note_view = gr.HTML()
 
@@ -350,8 +364,10 @@ def build_ui():
                       [status, summary, results, note_view, dl_html, dl_json])
 
         with gr.Tab("Inference lab"):
-            gr.Markdown("Live measurements on this machine using the note and criteria from the first tab. "
-                        "The uncached reference is slow on a CPU; keep the token count small.")
+            gr.HTML('<div class="tl-eyebrow" style="margin-top:6px">Decoding comparison</div>'
+                    '<p style="font-size:13.5px;color:var(--tl-ink-2);margin:4px 0 0">Live measurements on this machine, '
+                    'using the note and the first criterion from the screening tab. The uncached reference recomputes '
+                    'the whole sequence for every token and is slow on a CPU, so keep the token count small.</p>')
             with gr.Row():
                 workload = gr.Radio(["Criterion answer", "Patient summary (longer output)"], value="Criterion answer",
                                     label="Workload")
@@ -363,22 +379,22 @@ def build_ui():
                 lab_k = gr.Slider(1, 8, value=4, step=1, label="Draft tokens per round")
                 ignore_eos = gr.Checkbox(value=True, label="Ignore end-of-sequence (fixed length)")
             cmp_btn = gr.Button("Run comparison", variant="primary")
-            cmp_msg = gr.Markdown()
+            cmp_msg = gr.HTML(elem_classes=["tl-tight"])
             cmp_table = gr.Dataframe(headers=["Mode", "Prefill ms", "Decode ms", "Total ms", "Tokens", "Tokens/s",
-                                              "Same tokens as KV greedy", "Draft acceptance", "KV cache MB", "Peak MB"],
+                                              "Matches KV", "Acceptance", "KV cache MB", "Peak MB"],
                                      interactive=False)
             cmp_text = gr.Textbox(label="Generated text (KV cache)", lines=3)
             cmp_btn.click(compare_decoding, [note, criteria, workload, max_new, modes, lab_k, ignore_eos],
                           [cmp_msg, cmp_table, cmp_text])
 
-            gr.Markdown("### Attention implementations")
+            gr.HTML('<div class="tl-eyebrow" style="margin-top:18px">Attention implementations</div>')
             with gr.Row():
                 seq = gr.Slider(16, 1024, value=256, step=16, label="Sequence length")
                 block = gr.Slider(8, 256, value=64, step=8, label="Tile size")
                 case = gr.Radio(["Full causal prompt", "Decode step on a cache (1 query)",
                                  "Verification chunk (5 queries on a cache)"], value="Full causal prompt", label="Shape")
             att_btn = gr.Button("Check attention")
-            att_msg = gr.Markdown()
+            att_msg = gr.HTML(elem_classes=["tl-tight"])
             att_table = gr.Dataframe(headers=["Implementation", "Max |error|", "Mean |error|", "ms"], interactive=False)
             att_btn.click(attention_check, [seq, block, case], [att_msg, att_table])
 
@@ -389,6 +405,35 @@ def build_ui():
             gr.Markdown(ABOUT)
             gr.JSON(value=lambda: ENGINE.provenance("kv_prefix", "sdpa", 4), label="Loaded model")
     return ui
+
+
+# Slate neutrals with a single deep-teal accent; Inter for text with a system fallback so the
+# app looks the same offline.
+THEME = gr.themes.Base(
+    primary_hue=gr.themes.colors.teal,
+    secondary_hue=gr.themes.colors.slate,
+    neutral_hue=gr.themes.colors.slate,
+    radius_size=gr.themes.sizes.radius_sm,
+    font=[gr.themes.GoogleFont("Inter"), "system-ui", "Segoe UI", "sans-serif"],
+    font_mono=[gr.themes.GoogleFont("JetBrains Mono"), "ui-monospace", "Consolas", "monospace"],
+).set(
+    body_background_fill="*neutral_50",
+    body_background_fill_dark="*neutral_950",
+    block_background_fill="white",
+    block_background_fill_dark="*neutral_900",
+    block_border_width="1px",
+    block_label_text_weight="500",
+    block_title_text_weight="500",
+    button_primary_background_fill="*primary_700",
+    button_primary_background_fill_hover="*primary_800",
+    button_primary_background_fill_dark="*primary_600",
+    button_primary_text_color="white",
+    button_secondary_background_fill="white",
+    button_secondary_background_fill_dark="*neutral_800",
+    button_secondary_border_color="*neutral_300",
+    input_background_fill="white",
+    input_background_fill_dark="*neutral_950",
+)
 
 
 def _pointer(name: str) -> str | None:
@@ -427,7 +472,7 @@ def main():
     print(f"Model ready on {ENGINE.target.device}. Opening http://127.0.0.1:{args.port}")
     build_ui().queue(default_concurrency_limit=1).launch(
         server_name="127.0.0.1", server_port=args.port, inbrowser=not args.no_browser,
-        css=CSS, theme=gr.themes.Soft(), allowed_paths=[str(EXPORT_DIR)])
+        css=CSS, theme=THEME, allowed_paths=[str(EXPORT_DIR)])
 
 
 if __name__ == "__main__":

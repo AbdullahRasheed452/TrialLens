@@ -90,6 +90,10 @@ def fetch(nct_id):
 
 # ---------------------------------------------------------------- screening
 
+def _count(n: int, one: str, many: str) -> str:
+    return f"{n} {one if n == 1 else many}"
+
+
 IDLE = status_html("idle", "Ready", "Enter a patient note and criteria, or load a validation example, then run the screening.")
 
 
@@ -108,7 +112,8 @@ def screen(note, criteria_text, mode_label, attention, k, example, trial):
     gold = example["gold"] if example and example.get("note") == note else {}
     if trial is None and example and example.get("note") == note:
         trial = example["trial"]
-    scope = (f"{len(criteria)} criteria · {len(sentences)} sentences ({info['note_tokens']} tokens) · "
+    scope = (f"{_count(len(criteria), 'criterion', 'criteria')} · {_count(len(sentences), 'sentence', 'sentences')} "
+             f"({info['note_tokens']} tokens) · "
              f"{escape(mode_label)} · attention {escape(attention)}")
     if info["warning"]:
         scope += f"<br>{escape(info['warning'])}"
@@ -144,7 +149,7 @@ def screen(note, criteria_text, mode_label, attention, k, example, trial):
     if gold:
         hits = sum(gold.get(r["criterion"], {}).get("label") == r["label"] for r in results)
         detail += f" · agrees with the expert labels on {hits} of {len(results)} (validation example)"
-    yield (status_html("done", f"Screened {len(results)} criteria", detail),
+    yield (status_html("done", f"Screened {_count(len(results), 'criterion', 'criteria')}", detail),
            gr.update(value=summary_html(report["summary"], results), visible=True),
            results_html(results, gold), note_html(sentences, results),
            gr.update(value=str(html_path), visible=True), gr.update(value=str(json_path), visible=True))

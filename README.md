@@ -87,8 +87,8 @@ Only the note, criterion type, criterion text, expert label and expert evidence 
 | Base model | [Qwen/Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (1.54B parameters, Apache-2.0, 32k context) |
 | Adapter | LoRA r=16, alpha=32 on all attention and MLP projections, 18.5M trainable parameters, rare labels oversampled to 40 |
 | Selected by | best validation macro-F1 (rule fixed before training) |
-| Download | `python scripts/download_adapter.py` (Hugging Face Hub: `AbdullahRasheed452/triallens-qwen2.5-1.5b-lora`) |
-| Draft model | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct), optionally with the draft adapter |
+| Download | `python scripts/download_adapter.py`, or [Abdullah452/triallens-qwen2.5-1.5b-lora](https://huggingface.co/Abdullah452/triallens-qwen2.5-1.5b-lora) on the Hugging Face Hub |
+| Draft model | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) with the fine-tuned [draft adapter](https://huggingface.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora), also fetched by the download script |
 
 ## Reproducing the results
 

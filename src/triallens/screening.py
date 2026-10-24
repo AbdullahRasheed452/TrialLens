@@ -308,6 +308,7 @@ class ScreeningEngine:
             "adapter": self.config.adapter,
             "adapter_sha256": _file_hash(self.config.adapter),
             "draft": self.config.draft if mode == "speculative" else None,
+            "draft_adapter": self.config.draft_adapter if mode == "speculative" else None,
             "decoding": {"strategy": "greedy", "mode": DECODING_MODES[mode], "attention": attention,
                          "max_new_tokens": MAX_NEW_TOKENS, "draft_k": k if mode == "speculative" else None},
             "device": str(self.target.device),

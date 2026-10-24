@@ -391,14 +391,21 @@ def build_ui():
     return ui
 
 
-def default_adapter() -> str | None:
-    pointer = ROOT / "checkpoints/BEST"
+def _pointer(name: str) -> str | None:
+    pointer = ROOT / "checkpoints" / name
     if pointer.exists():
         path = ROOT / pointer.read_text(encoding="utf-8").strip()
         if (path / "adapter_config.json").exists():
             return str(path)
+    return None
+
+
+def default_adapter() -> str | None:
+    if found := _pointer("BEST"):
+        return found
     for path in sorted((ROOT / "checkpoints").glob("*/lora-best")):
-        if (path / "adapter_config.json").exists():
+        cfg = path / "adapter_config.json"
+        if cfg.exists() and "1.5B" in cfg.read_text(encoding="utf-8"):
             return str(path)
     return None
 
@@ -414,8 +421,9 @@ def main():
     adapter = args.adapter or default_adapter()
     if adapter is None:
         print("WARNING: no fine-tuned adapter found, running the base model. Run scripts/download_adapter.py first.")
-    print(f"Loading {EngineConfig().model} with adapter {adapter} ...")
-    ENGINE = ScreeningEngine(EngineConfig(adapter=adapter)).load()
+    draft_adapter = _pointer("DRAFT")
+    print(f"Loading {EngineConfig().model} with adapter {adapter} (speculative draft adapter: {draft_adapter}) ...")
+    ENGINE = ScreeningEngine(EngineConfig(adapter=adapter, draft_adapter=draft_adapter)).load()
     print(f"Model ready on {ENGINE.target.device}. Opening http://127.0.0.1:{args.port}")
     build_ui().queue(default_concurrency_limit=1).launch(
         server_name="127.0.0.1", server_port=args.port, inbrowser=not args.no_browser,

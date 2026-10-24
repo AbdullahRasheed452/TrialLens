@@ -458,7 +458,7 @@ A 1.5B-parameter open model, adapted with 18.5M LoRA parameters in about half an
 Claude Code (Anthropic, Claude Opus model) was used as a programming and writing assistant throughout the project: it drafted code, tests, the Kaggle notebooks, figure scripts and the first draft of this paper from the author's instructions and the experiment logs. The author decided the model, split procedure, experiments and design choices, ran every training, evaluation and benchmark job, reviewed and tested all code, and checked every reported number against the committed result files, which the figures and tables are generated from. Library code (PyTorch, Hugging Face Transformers, PEFT, Gradio) is used as documented; the decoder, cache, attention and speculative decoding are written for this project and verified by the tests described above.
 
 \section{Reproducibility}
-Code, split manifest, logs and results: \url{https://github.com/AbdullahRasheed452/TrialLens}. Model adapter: see the repository README. Every table and figure is regenerated from committed JSON files by \texttt{scripts/make\_figures.py} and \texttt{scripts/error\_analysis.py}.
+Code, split manifest, logs and results: \url{https://github.com/AbdullahRasheed452/TrialLens}. Adapters: \url{https://huggingface.co/Abdullah452/triallens-qwen2.5-1.5b-lora} (target) and \url{https://huggingface.co/Abdullah452/triallens-qwen2.5-0.5b-draft-lora} (draft), downloaded by \texttt{scripts/download\_adapter.py}. Every table and figure is regenerated from committed JSON files by \texttt{scripts/make\_figures.py} and \texttt{scripts/error\_analysis.py}.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}

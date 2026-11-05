@@ -137,7 +137,7 @@ The compiled paper is [`paper/TrialLens_paper.pdf`](paper/TrialLens_paper.pdf). 
 |---|---|
 | `start.bat` closes immediately | Run it from a terminal (`cmd`, then `start.bat`) to see the message. |
 | `running scripts is disabled` when activating the venv | Run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once in PowerShell, or skip activation and call `.venv\Scripts\python.exe` directly. |
-| `An Application Control policy has blocked this file` | Windows Smart App Control blocked a compiled package. The project avoids scikit-learn for this reason; everything in `requirements.txt` loads with Smart App Control on. |
+| `An Application Control policy has blocked this file` | Windows Smart App Control blocked an unsigned file. Its verdicts come from an online reputation check and can change, so first simply run `start.bat` again. If `.venv\Scripts\python.exe` itself is blocked, replace that small `uv` launcher with the real interpreter: copy `python.exe`, `pythonw.exe`, `python3.dll`, `python311.dll`, `vcruntime140.dll` and `vcruntime140_1.dll` from the folder named in `.venv\pyvenv.cfg` (`home = ...`) into `.venv\Scripts`. Turning Smart App Control off (Windows Security, App & browser control) removes the problem entirely. The project avoids scikit-learn because its DLLs were blocked. |
 | Port 7860 already in use | `start.bat --port 7861` |
 | Out of memory | Close other programs; avoid the speculative mode, which loads a second model. |
 | Adapter download fails | The app falls back to any adapter in `checkpoints/` and otherwise runs the base model with a warning. |

@@ -1,9 +1,9 @@
 # HTML rendering for the app and the downloadable report. Everything user supplied is
 # escaped before it reaches the page.
 #
-# Colour is used only where it carries meaning: one teal accent for interaction and
-# provenance, and four muted semantic tones for the label categories. Everything else is
-# slate. Light and dark values are defined as tokens so both modes stay consistent.
+# Zinc neutrals carry the structure, near-black is the primary action colour, a single
+# cool blue marks interaction and evidence, and four desaturated tones mark the label
+# categories. Light and dark values are defined as tokens so both modes stay consistent.
 
 from __future__ import annotations
 
@@ -19,35 +19,37 @@ OUTCOME_TONE = {"Potentially eligible": "met", "Needs review": "nei", "Likely in
 
 TOKENS = """
 :root{
-  --tl-ink:#0f172a;--tl-ink-2:#475569;--tl-ink-3:#64748b;--tl-line:#e2e8f0;--tl-line-2:#cbd5e1;
-  --tl-surface:#ffffff;--tl-surface-2:#f8fafc;--tl-accent:#0f766e;--tl-accent-soft:#f0fdfa;--tl-accent-line:#99f6e4;
-  --tl-met:#166534;--tl-met-bg:#f0fdf4;--tl-met-line:#bbf7d0;
-  --tl-out:#991b1b;--tl-out-bg:#fef2f2;--tl-out-line:#fecaca;
-  --tl-nei:#92400e;--tl-nei-bg:#fffbeb;--tl-nei-line:#fde68a;
-  --tl-na:#475569;--tl-na-bg:#f1f5f9;--tl-na-line:#cbd5e1;
-  --tl-bad:#6b21a8;--tl-bad-bg:#faf5ff;--tl-bad-line:#e9d5ff;
+  --tl-ink:#09090b;--tl-ink-2:#52525b;--tl-ink-3:#71717a;--tl-line:#e4e4e7;--tl-line-2:#d4d4d8;
+  --tl-surface:#ffffff;--tl-surface-2:#fafafa;--tl-accent:#2563eb;--tl-accent-soft:#eff6ff;--tl-accent-line:#bfdbfe;
+  --tl-met:#047857;--tl-met-bg:#ecfdf5;--tl-met-line:#a7f3d0;
+  --tl-out:#be123c;--tl-out-bg:#fff1f2;--tl-out-line:#fecdd3;
+  --tl-nei:#b45309;--tl-nei-bg:#fffbeb;--tl-nei-line:#fde68a;
+  --tl-na:#52525b;--tl-na-bg:#f4f4f5;--tl-na-line:#d4d4d8;
+  --tl-bad:#7c3aed;--tl-bad-bg:#f5f3ff;--tl-bad-line:#ddd6fe;
   --tl-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
 }
 .dark{
-  --tl-ink:#e2e8f0;--tl-ink-2:#94a3b8;--tl-ink-3:#7c8aa0;--tl-line:#1e293b;--tl-line-2:#334155;
-  --tl-surface:#0f172a;--tl-surface-2:#111c30;--tl-accent:#2dd4bf;--tl-accent-soft:rgba(45,212,191,.08);--tl-accent-line:rgba(45,212,191,.35);
-  --tl-met:#86efac;--tl-met-bg:rgba(34,197,94,.10);--tl-met-line:rgba(134,239,172,.28);
-  --tl-out:#fca5a5;--tl-out-bg:rgba(239,68,68,.10);--tl-out-line:rgba(252,165,165,.28);
-  --tl-nei:#fcd34d;--tl-nei-bg:rgba(245,158,11,.10);--tl-nei-line:rgba(252,211,77,.28);
-  --tl-na:#cbd5e1;--tl-na-bg:rgba(148,163,184,.10);--tl-na-line:rgba(203,213,225,.22);
-  --tl-bad:#d8b4fe;--tl-bad-bg:rgba(168,85,247,.10);--tl-bad-line:rgba(216,180,254,.28);
+  --tl-ink:#fafafa;--tl-ink-2:#a1a1aa;--tl-ink-3:#8b8b94;--tl-line:#27272a;--tl-line-2:#3f3f46;
+  --tl-surface:#111113;--tl-surface-2:#18181b;--tl-accent:#60a5fa;--tl-accent-soft:rgba(96,165,250,.09);--tl-accent-line:rgba(96,165,250,.35);
+  --tl-met:#6ee7b7;--tl-met-bg:rgba(16,185,129,.10);--tl-met-line:rgba(110,231,183,.25);
+  --tl-out:#fda4af;--tl-out-bg:rgba(244,63,94,.10);--tl-out-line:rgba(253,164,175,.25);
+  --tl-nei:#fcd34d;--tl-nei-bg:rgba(245,158,11,.10);--tl-nei-line:rgba(252,211,77,.25);
+  --tl-na:#d4d4d8;--tl-na-bg:rgba(161,161,170,.10);--tl-na-line:rgba(212,212,216,.20);
+  --tl-bad:#c4b5fd;--tl-bad-bg:rgba(139,92,246,.10);--tl-bad-line:rgba(196,181,253,.25);
 }
 """
 
 CSS = TOKENS + """
 footer{display:none !important}
 .gradio-container button.secondary{border:1px solid var(--tl-line-2) !important;font-weight:500 !important;font-size:14px !important;box-shadow:none !important}
-.gradio-container button.secondary:hover{border-color:var(--tl-accent) !important;color:var(--tl-accent) !important}
+.gradio-container button.secondary:hover{border-color:var(--tl-ink-3) !important;background:var(--tl-surface-2) !important}
+.gradio-container button.primary{letter-spacing:-.005em;box-shadow:none !important}
+.gradio-container .tab-container button.selected, .gradio-container button[role="tab"][aria-selected="true"]{color:var(--tl-ink) !important;font-weight:550 !important}
 .tl-tight{min-height:0 !important;padding:0 !important;border:none !important;background:transparent !important;box-shadow:none !important}
 .tl-tight:empty, .tl-tight > div:empty{display:none}
 .tl-header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:6px 0 14px;border-bottom:1px solid var(--tl-line);margin-bottom:12px}
 .tl-brand{font-size:24px;font-weight:650;letter-spacing:-.02em;color:var(--tl-ink)}
-.tl-brand span{color:var(--tl-accent)}
+.tl-brand span{color:var(--tl-ink-3);font-weight:500}
 .tl-sub{font-size:14px;color:var(--tl-ink-2);margin-top:2px}
 .tl-badges{display:flex;gap:6px;flex-wrap:wrap}
 .tl-badge{font-family:var(--tl-mono);font-size:11.5px;color:var(--tl-ink-2);border:1px solid var(--tl-line-2);border-radius:4px;padding:2px 7px;background:var(--tl-surface-2)}
@@ -231,7 +233,7 @@ td{{font-family:var(--tl-mono);font-size:11.5px;word-break:break-all}}
 details.tl-raw{{display:none}}
 @media print{{.tl-card{{break-inside:avoid}}}}
 </style></head><body>
-<h1>Trial<span style="color:var(--tl-accent)">Lens</span> screening report</h1>
+<h1>Trial<span style="color:var(--tl-ink-3);font-weight:500">Lens</span> screening report</h1>
 <div class="sub">{title or "Criteria entered manually"} · generated {escape(report["created"])}</div>
 {notice_html(report["disclaimer"])}
 {summary_html(report["summary"], report["results"])}

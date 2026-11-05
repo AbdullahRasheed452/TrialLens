@@ -412,32 +412,41 @@ def build_ui():
     return ui
 
 
-# Slate neutrals with a single deep-teal accent; Inter for text with a system fallback so the
-# app looks the same offline.
+# Zinc neutrals, near-black primary actions (white in dark mode) and a blue accent for
+# selection and focus; Inter for text with a system fallback so the app looks the same offline.
 THEME = gr.themes.Base(
-    primary_hue=gr.themes.colors.teal,
-    secondary_hue=gr.themes.colors.slate,
-    neutral_hue=gr.themes.colors.slate,
+    primary_hue=gr.themes.colors.blue,
+    secondary_hue=gr.themes.colors.zinc,
+    neutral_hue=gr.themes.colors.zinc,
     radius_size=gr.themes.sizes.radius_sm,
     font=[gr.themes.GoogleFont("Inter"), "system-ui", "Segoe UI", "sans-serif"],
     font_mono=[gr.themes.GoogleFont("JetBrains Mono"), "ui-monospace", "Consolas", "monospace"],
 ).set(
     body_background_fill="*neutral_50",
-    body_background_fill_dark="*neutral_950",
+    body_background_fill_dark="#09090b",
     block_background_fill="white",
-    block_background_fill_dark="*neutral_900",
+    block_background_fill_dark="#111113",
+    block_border_color="*neutral_200",
+    block_border_color_dark="*neutral_800",
     block_border_width="1px",
     block_label_text_weight="500",
     block_title_text_weight="500",
-    button_primary_background_fill="*primary_700",
-    button_primary_background_fill_hover="*primary_800",
-    button_primary_background_fill_dark="*primary_600",
+    button_primary_background_fill="*neutral_900",
+    button_primary_background_fill_hover="*neutral_700",
     button_primary_text_color="white",
+    button_primary_background_fill_dark="*neutral_50",
+    button_primary_background_fill_hover_dark="*neutral_200",
+    button_primary_text_color_dark="*neutral_950",
     button_secondary_background_fill="white",
-    button_secondary_background_fill_dark="*neutral_800",
+    button_secondary_background_fill_dark="#18181b",
     button_secondary_border_color="*neutral_300",
     input_background_fill="white",
-    input_background_fill_dark="*neutral_950",
+    input_background_fill_dark="#09090b",
+    input_border_color_focus="*primary_500",
+    checkbox_background_color_selected="*neutral_900",
+    checkbox_background_color_selected_dark="*neutral_50",
+    slider_color="*neutral_900",
+    slider_color_dark="*neutral_50",
 )
 
 
